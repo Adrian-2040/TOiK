@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.filmografia.controller.MainController">
+    <top>
+        <VBox spacing="10">
+            <padding>
+                <Insets bottom="10" left="10" right="10" top="10" />
+            </padding>
+            <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="System Zarządzania Filmografią Aktorów" />
+
+            <!-- Panel wyszukiwania -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="poleWyszukiwania" prefWidth="200" promptText="Wyszukaj..." />
+                <ComboBox fx:id="comboKryterium" prefWidth="120" />
+                <Button onAction="#wyszukaj" text="Szukaj" />
+                <Button onAction="#odswiezDane" text="Odśwież" />
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <TabPane>
+            <!-- Zakładka Aktorzy -->
+            <Tab text="Aktorzy" closable="false">
+                <HBox spacing="10">
+                    <padding>
+                        <Insets bottom="10" left="10" right="10" top="10" />
+                    </padding>
+
+                    <!-- Tabela aktorów -->
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-weight: bold;" text="Lista Aktorów" />
+                        <TableView fx:id="tabelaAktorow" prefHeight="400">
+                            <columns>
+                                <TableColumn fx:id="kolumnaImie" prefWidth="100" text="Imię" />
+                                <TableColumn fx:id="kolumnaNazwisko" prefWidth="120" text="Nazwisko" />
+                                <TableColumn fx:id="kolumnaRokDebiutu" prefWidth="100" text="Rok debiutu" />
+                            </columns>
+                        </TableView>
+                        <Button onAction="#usunAktora" text="Usuń wybranego aktora" />
+                    </VBox>
+
+                    <!-- Formularz dodawania aktora -->
+                    <VBox spacing="10" prefWidth="250">
+                        <Label style="-fx-font-weight: bold;" text="Dodaj Aktora" />
+
+                        <VBox spacing="5">
+                            <Label text="Imię:" />
+                            <TextField fx:id="poleImie" />
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <Label text="Nazwisko:" />
+                            <TextField fx:id="poleNazwisko" />
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <Label text="Rok debiutu:" />
+                            <TextField fx:id="poleRokDebiutu" />
+                        </VBox>
+
+                        <Button onAction="#dodajAktora" prefWidth="200" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="Dodaj Aktora" />
+                    </VBox>
+                </HBox>
+            </Tab>
+
+            <!-- Zakładka Filmy -->
+            <Tab text="Filmy" closable="false">
+                <HBox spacing="10">
+                    <padding>
+                        <Insets bottom="10" left="10" right="10" top="10" />
+                    </padding>
+
+                    <!-- Tabela filmów -->
+                    <VBox spacing="5" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-weight: bold;" text="Lista Filmów" />
+                        <TableView fx:id="tabelaFilmow" prefHeight="400">
+                            <columns>
+                                <TableColumn fx:id="kolumnaTytul" prefWidth="150" text="Tytuł" />
+                                <TableColumn fx:id="kolumnaRokProdukcji" prefWidth="100" text="Rok" />
+                                <TableColumn fx:id="kolumnaRezyser" prefWidth="120" text="Reżyser" />
+                                <TableColumn fx:id="kolumnaGatunek" prefWidth="100" text="Gatunek" />
+                            </columns>
+                        </TableView>
+                        <Button onAction="#usunFilm" text="Usuń wybrany film" />
+                    </VBox>
+
+                    <!-- Formularz dodawania filmu -->
+                    <VBox spacing="10" prefWidth="250">
+                        <Label style="-fx-font-weight: bold;" text="Dodaj Film" />
+
+                        <VBox spacing="5">
+                            <Label text="Tytuł:" />
+                            <TextField fx:id="poleTytul" />
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <Label text="Rok produkcji:" />
+                            <TextField fx:id="poleRokProdukcji" />
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <Label text="Reżyser:" />
+                            <TextField fx:id="poleRezyser" />
+                        </VBox>
+
+                        <VBox spacing="5">
+                            <Label text="Gatunek:" />
+                            <TextField fx:id="poleGatunek" />
+                        </VBox>
+
+                        <Button onAction="#dodajFilm" prefWidth="200" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="Dodaj Film" />
+                    </VBox>
+                </HBox>
+            </Tab>
+        </TabPane>
+    </center>
+</BorderPane>
