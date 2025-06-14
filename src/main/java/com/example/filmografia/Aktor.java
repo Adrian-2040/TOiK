@@ -4,36 +4,66 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Reprezentuje aktora w systemie filmografii.
+ * Encja odwzorowująca tabelę {@code aktorzy} w bazie danych.
+ */
 @Entity
 @Table(name = "aktorzy")
 public class Aktor {
 
+    /**
+     * Unikalny identyfikator aktora (generowany automatycznie).
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Imię aktora (pole wymagane).
+     */
     @Column(nullable = false)
     private String imie;
 
+    /**
+     * Nazwisko aktora (pole wymagane).
+     */
     @Column(nullable = false)
     private String nazwisko;
 
+    /**
+     * Rok debiutu aktora.
+     */
     @Column(name = "rok_debiutu")
     private int rokDebiutu;
 
+    /**
+     * Lista filmów, w których aktor wystąpił.
+     * Relacja wiele-do-wielu z encją {@link Film}.
+     */
     @ManyToMany(mappedBy = "aktorzy", fetch = FetchType.LAZY)
     private List<Film> filmy = new ArrayList<>();
 
-    // Konstruktory
+    /**
+     * Konstruktor domyślny wymagany przez JPA.
+     */
     public Aktor() {}
 
+    /**
+     * Konstruktor tworzący aktora z podanymi danymi.
+     *
+     * @param imie       imię aktora
+     * @param nazwisko   nazwisko aktora
+     * @param rokDebiutu rok debiutu aktora
+     */
     public Aktor(String imie, String nazwisko, int rokDebiutu) {
         this.imie = imie;
         this.nazwisko = nazwisko;
         this.rokDebiutu = rokDebiutu;
     }
 
-    // Getters and setters
+    // Gettery i settery
+
     public Long getId() {
         return id;
     }
@@ -74,7 +104,11 @@ public class Aktor {
         this.filmy = filmy;
     }
 
-    // Metody pomocnicze
+    /**
+     * Zwraca pełne imię i nazwisko aktora w postaci jednego ciągu tekstowego.
+     *
+     * @return imię i nazwisko oddzielone spacją
+     */
     public String getPelneImie() {
         return imie + " " + nazwisko;
     }
@@ -89,6 +123,9 @@ public class Aktor {
                 '}';
     }
 
+    /**
+     * Porównuje obiekty na podstawie identyfikatora.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -97,6 +134,9 @@ public class Aktor {
         return id != null && id.equals(aktor.id);
     }
 
+    /**
+     * Zwraca hash code klasy (zgodny z equals).
+     */
     @Override
     public int hashCode() {
         return getClass().hashCode();

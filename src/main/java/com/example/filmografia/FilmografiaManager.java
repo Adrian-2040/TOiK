@@ -3,6 +3,12 @@ package com.example.filmografia;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Serwis zarządzający relacjami między aktorami a filmami.
+ * <p>
+ * Umożliwia przypisywanie i usuwanie aktorów z filmów oraz dba o spójność relacji
+ * dwukierunkowej między encjami {@link Aktor} i {@link Film}.
+ */
 @Service
 public class FilmografiaManager {
 
@@ -12,7 +18,15 @@ public class FilmografiaManager {
     @Autowired
     private FilmService filmService;
 
-    // Metody do zarządzania relacjami aktor-film
+    /**
+     * Przypisuje aktora do filmu.
+     * <p>
+     * Metoda dodaje aktora do listy aktorów w filmie oraz film do listy filmów aktora,
+     * a następnie aktualizuje obie encje w bazie danych.
+     *
+     * @param aktorId identyfikator aktora
+     * @param filmId  identyfikator filmu
+     */
     public void przypiszAktoraDoFilmu(Long aktorId, Long filmId) {
         Aktor aktor = aktorService.znajdzAktoraPoId(aktorId);
         Film film = filmService.znajdzFilmPoId(filmId);
@@ -25,6 +39,15 @@ public class FilmografiaManager {
         }
     }
 
+    /**
+     * Usuwa przypisanie aktora z filmu.
+     * <p>
+     * Metoda usuwa aktora z listy aktorów filmu oraz film z listy filmów aktora,
+     * a następnie aktualizuje obie encje w bazie danych.
+     *
+     * @param aktorId identyfikator aktora
+     * @param filmId  identyfikator filmu
+     */
     public void usunAktoraZFilmu(Long aktorId, Long filmId) {
         Aktor aktor = aktorService.znajdzAktoraPoId(aktorId);
         Film film = filmService.znajdzFilmPoId(filmId);
@@ -37,3 +60,4 @@ public class FilmografiaManager {
         }
     }
 }
+

@@ -9,27 +9,48 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * Główna klasa aplikacji Filmografia, łącząca Spring Boot i JavaFX.
+ * <p>
+ * Aplikacja uruchamia kontekst Springa i ładuje interfejs graficzny JavaFX
+ * z wykorzystaniem FXML. Dzięki integracji z Spring Bootem kontrolery JavaFX
+ * mogą korzystać z komponentów i serwisów Springa.
+ */
 @SpringBootApplication
 public class FilmografiaApplication extends Application {
 
     private ConfigurableApplicationContext springContext;
 
+    /**
+     * Główna metoda uruchamiająca aplikację JavaFX.
+     *
+     * @param args argumenty uruchomieniowe
+     */
     public static void main(String[] args) {
-        // Uruchomienie JavaFX
         launch(args);
     }
 
+    /**
+     * Inicjalizuje kontekst Spring Boot przy starcie aplikacji JavaFX.
+     *
+     * @throws Exception w przypadku błędu inicjalizacji
+     */
     @Override
     public void init() throws Exception {
-        // Uruchomienie Spring Boot context
         springContext = SpringApplication.run(FilmografiaApplication.class);
     }
 
+    /**
+     * Tworzy główne okno aplikacji i ładuje layout z pliku FXML.
+     * Umożliwia automatyczne wstrzykiwanie kontrolerów przy pomocy Springa.
+     *
+     * @param primaryStage główna scena aplikacji JavaFX
+     * @throws Exception w przypadku błędu ładowania FXML
+     */
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Ładowanie głównego okna JavaFX
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
-        loader.setControllerFactory(springContext::getBean);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/Layout.fxml"));
+        loader.setControllerFactory(springContext::getBean);  // Pozwala Springowi utworzyć kontroler
 
         Parent root = loader.load();
         Scene scene = new Scene(root, 800, 600);
@@ -39,11 +60,16 @@ public class FilmografiaApplication extends Application {
         primaryStage.show();
     }
 
+    /**
+     * Zamyka kontekst Springa przy wyjściu z aplikacji.
+     *
+     * @throws Exception w przypadku błędu zamykania
+     */
     @Override
     public void stop() throws Exception {
-        // Zamknięcie Spring context
         if (springContext != null) {
             springContext.close();
         }
     }
 }
+

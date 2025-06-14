@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Reprezentuje film w systemie filmografii.
+ * Zawiera informacje o tytule, roku produkcji, reżyserze, gatunku oraz powiązanych aktorach.
+ */
 @Entity
 @Table(name = "filmy")
 public class Film {
@@ -24,14 +28,26 @@ public class Film {
     private String gatunek;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinTable(name = "aktorzy_filmy",
+    @JoinTable(
+            name = "aktorzy_filmy",
             joinColumns = @JoinColumn(name = "film_id"),
-            inverseJoinColumns = @JoinColumn(name = "aktor_id"))
+            inverseJoinColumns = @JoinColumn(name = "aktor_id")
+    )
     private List<Aktor> aktorzy = new ArrayList<>();
 
-    // Konstruktory
+    /**
+     * Konstruktor bezargumentowy wymagany przez JPA.
+     */
     public Film() {}
 
+    /**
+     * Konstruktor tworzący film z podstawowymi danymi.
+     *
+     * @param tytul tytuł filmu
+     * @param rokProdukcji rok produkcji filmu
+     * @param rezyser imię i nazwisko reżysera
+     * @param gatunek gatunek filmu
+     */
     public Film(String tytul, int rokProdukcji, String rezyser, String gatunek) {
         this.tytul = tytul;
         this.rokProdukcji = rokProdukcji;
@@ -39,7 +55,8 @@ public class Film {
         this.gatunek = gatunek;
     }
 
-    // Getters and setters
+    // Gettery i settery
+
     public Long getId() {
         return id;
     }
@@ -88,7 +105,11 @@ public class Film {
         this.aktorzy = aktorzy;
     }
 
-    // Metody pomocnicze
+    /**
+     * Dodaje aktora do filmu i jednocześnie dodaje film do listy filmów aktora.
+     *
+     * @param aktor aktor do dodania
+     */
     public void dodajAktora(Aktor aktor) {
         if (!aktorzy.contains(aktor)) {
             aktorzy.add(aktor);
@@ -96,6 +117,11 @@ public class Film {
         }
     }
 
+    /**
+     * Usuwa aktora z filmu oraz usuwa film z listy filmów aktora.
+     *
+     * @param aktor aktor do usunięcia
+     */
     public void usunAktora(Aktor aktor) {
         if (aktorzy.contains(aktor)) {
             aktorzy.remove(aktor);

@@ -17,6 +17,12 @@ import org.springframework.stereotype.Component;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Kontroler głównego widoku aplikacji Filmografia.
+ * Obsługuje operacje związane z dodawaniem, usuwaniem, wyszukiwaniem oraz wyświetlaniem aktorów i filmów.
+ * Współpracuje z serwisami: {@link AktorService}, {@link FilmService}, {@link FilmografiaManager}.
+ * Używa komponentów JavaFX oraz Spring Framework (komponent @Component).
+ */
 @Component
 public class MainController implements Initializable {
 
@@ -29,7 +35,9 @@ public class MainController implements Initializable {
     @Autowired
     private FilmografiaManager filmografiaManager;
 
-    // Komponenty dla aktorów
+    // --- Komponenty widoku dla aktorów ---
+
+    /** Tabela wyświetlająca aktorów */
     @FXML private TableView<Aktor> tabelaAktorow;
     @FXML private TableColumn<Aktor, String> kolumnaImie;
     @FXML private TableColumn<Aktor, String> kolumnaNazwisko;
@@ -39,7 +47,9 @@ public class MainController implements Initializable {
     @FXML private TextField poleNazwisko;
     @FXML private TextField poleRokDebiutu;
 
-    // Komponenty dla filmów
+    // --- Komponenty widoku dla filmów ---
+
+    /** Tabela wyświetlająca filmy */
     @FXML private TableView<Film> tabelaFilmow;
     @FXML private TableColumn<Film, String> kolumnaTytul;
     @FXML private TableColumn<Film, Integer> kolumnaRokProdukcji;
@@ -51,16 +61,23 @@ public class MainController implements Initializable {
     @FXML private TextField poleRezyser;
     @FXML private TextField poleGatunek;
 
-    // Komponenty dla wyszukiwania
+    // --- Komponenty wyszukiwania ---
+
     @FXML private TextField poleWyszukiwania;
     @FXML private ComboBox<String> comboKryterium;
 
     private ObservableList<Aktor> listaAktorow = FXCollections.observableArrayList();
     private ObservableList<Film> listaFilmow = FXCollections.observableArrayList();
 
+    /**
+     * Inicjalizuje komponenty interfejsu użytkownika po załadowaniu FXML.
+     * Konfiguruje tabele i komponenty wyszukiwania, ładuje dane z bazy.
+     *
+     * @param url            nieużywane
+     * @param resourceBundle nieużywane
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Konfiguracja tabel
         kolumnaImie.setCellValueFactory(new PropertyValueFactory<>("imie"));
         kolumnaNazwisko.setCellValueFactory(new PropertyValueFactory<>("nazwisko"));
         kolumnaRokDebiutu.setCellValueFactory(new PropertyValueFactory<>("rokDebiutu"));
@@ -73,16 +90,18 @@ public class MainController implements Initializable {
         tabelaAktorow.setItems(listaAktorow);
         tabelaFilmow.setItems(listaFilmow);
 
-        // Konfiguracja ComboBox
         comboKryterium.setItems(FXCollections.observableArrayList(
                 "Imię", "Nazwisko", "Rok debiutu", "Tytuł filmu", "Reżyser", "Gatunek"
         ));
         comboKryterium.getSelectionModel().selectFirst();
 
-        // Ładowanie danych
         odswiezDane();
     }
 
+    /**
+     * Dodaje nowego aktora do bazy danych na podstawie danych z formularza.
+     * Obsługuje walidację danych i wyjątki.
+     */
     @FXML
     private void dodajAktora() {
         try {
@@ -113,6 +132,10 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * Dodaje nowy film do bazy danych na podstawie danych z formularza.
+     * Obsługuje walidację danych i wyjątki.
+     */
     @FXML
     private void dodajFilm() {
         try {
@@ -145,18 +168,30 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * Usuwa zaznaczonego aktora z bazy danych.
+     * Wyświetla komunikat błędu, jeśli nic nie jest zaznaczone.
+     */
     @FXML
     private void usunAktora() {
         Aktor wybranyAktor = tabelaAktorow.getSelectionModel().getSelectedItem();
         if (wybranyAktor != null) {
-            aktorService.usunAktora(wybranyAktor.getId());
-            odswiezDane();
-            pokazInfo("Sukces", "Aktor został usunięty!");
+            try {
+                aktorService.usunAktora(wybranyAktor.getId());
+                odswiezDane();
+                pokazInfo("Sukces", "Aktor został usunięty!");
+            } catch (Exception e) {
+                pokazAlert("Błąd", "Wystąpił błąd podczas usuwania aktora: " + e.getMessage());
+            }
         } else {
             pokazAlert("Błąd", "Wybierz aktora do usunięcia!");
         }
     }
 
+    /**
+     * Usuwa zaznaczony film z bazy danych.
+     * Wyświetla komunikat błędu, jeśli nic nie jest zaznaczone.
+     */
     @FXML
     private void usunFilm() {
         Film wybranyFilm = tabelaFilmow.getSelectionModel().getSelectedItem();
@@ -169,32 +204,91 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * Wyszukuje aktorów lub filmy na podstawie wybranego kryterium i wartości w polu wyszukiwania.
+     * Obsługuje różne tryby wyszukiwania i walidację danych wejściowych.
+     */
     @FXML
     private void wyszukaj() {
         String kryterium = poleWyszukiwania.getText().trim();
+        String wybraneKryterium = comboKryterium.getSelectionModel().getSelectedItem();
+
         if (kryterium.isEmpty()) {
             odswiezDane();
             return;
         }
 
-        // Implementacja wyszukiwania - uproszczona wersja
         listaAktorow.clear();
         listaFilmow.clear();
 
-        // Wyszukiwanie w aktorach
-        aktorService.znajdzWszystkichAktorow().stream()
-                .filter(aktor -> aktor.getImie().toLowerCase().contains(kryterium.toLowerCase()) ||
-                        aktor.getNazwisko().toLowerCase().contains(kryterium.toLowerCase()))
-                .forEach(listaAktorow::add);
+        try {
+            switch (wybraneKryterium) {
+                case "Imię":
+                    aktorService.znajdzWszystkichAktorow().stream()
+                            .filter(aktor -> aktor.getImie().toLowerCase().contains(kryterium.toLowerCase()))
+                            .forEach(listaAktorow::add);
+                    break;
 
-        // Wyszukiwanie w filmach
-        filmService.znajdzWszystkieFilmy().stream()
-                .filter(film -> film.getTytul().toLowerCase().contains(kryterium.toLowerCase()) ||
-                        film.getRezyser().toLowerCase().contains(kryterium.toLowerCase()) ||
-                        film.getGatunek().toLowerCase().contains(kryterium.toLowerCase()))
-                .forEach(listaFilmow::add);
+                case "Nazwisko":
+                    aktorService.znajdzWszystkichAktorow().stream()
+                            .filter(aktor -> aktor.getNazwisko().toLowerCase().contains(kryterium.toLowerCase()))
+                            .forEach(listaAktorow::add);
+                    break;
+
+                case "Rok debiutu":
+                    try {
+                        int rokDebiutu = Integer.parseInt(kryterium);
+                        aktorService.znajdzWszystkichAktorow().stream()
+                                .filter(aktor -> aktor.getRokDebiutu() == rokDebiutu)
+                                .forEach(listaAktorow::add);
+                    } catch (NumberFormatException e) {
+                        pokazAlert("Błąd", "Rok debiutu musi być liczbą!");
+                        return;
+                    }
+                    break;
+
+                case "Tytuł filmu":
+                    filmService.znajdzWszystkieFilmy().stream()
+                            .filter(film -> film.getTytul().toLowerCase().contains(kryterium.toLowerCase()))
+                            .forEach(listaFilmow::add);
+                    break;
+
+                case "Reżyser":
+                    filmService.znajdzWszystkieFilmy().stream()
+                            .filter(film -> film.getRezyser().toLowerCase().contains(kryterium.toLowerCase()))
+                            .forEach(listaFilmow::add);
+                    break;
+
+                case "Gatunek":
+                    filmService.znajdzWszystkieFilmy().stream()
+                            .filter(film -> film.getGatunek() != null &&
+                                    film.getGatunek().toLowerCase().contains(kryterium.toLowerCase()))
+                            .forEach(listaFilmow::add);
+                    break;
+
+                default:
+                    // domyślne wyszukiwanie
+                    aktorService.znajdzWszystkichAktorow().stream()
+                            .filter(aktor -> aktor.getImie().toLowerCase().contains(kryterium.toLowerCase()) ||
+                                    aktor.getNazwisko().toLowerCase().contains(kryterium.toLowerCase()))
+                            .forEach(listaAktorow::add);
+
+                    filmService.znajdzWszystkieFilmy().stream()
+                            .filter(film -> film.getTytul().toLowerCase().contains(kryterium.toLowerCase()) ||
+                                    film.getRezyser().toLowerCase().contains(kryterium.toLowerCase()) ||
+                                    (film.getGatunek() != null &&
+                                            film.getGatunek().toLowerCase().contains(kryterium.toLowerCase())))
+                            .forEach(listaFilmow::add);
+                    break;
+            }
+        } catch (Exception e) {
+            pokazAlert("Błąd", "Wystąpił błąd podczas wyszukiwania: " + e.getMessage());
+        }
     }
 
+    /**
+     * Odświeża listy aktorów i filmów z bazy danych.
+     */
     @FXML
     private void odswiezDane() {
         listaAktorow.clear();
@@ -204,12 +298,14 @@ public class MainController implements Initializable {
         listaFilmow.addAll(filmService.znajdzWszystkieFilmy());
     }
 
+    /** Czyści pola formularza aktora. */
     private void wyczyscPolaAktora() {
         poleImie.clear();
         poleNazwisko.clear();
         poleRokDebiutu.clear();
     }
 
+    /** Czyści pola formularza filmu. */
     private void wyczyscPolaFilmu() {
         poleTytul.clear();
         poleRokProdukcji.clear();
@@ -217,6 +313,12 @@ public class MainController implements Initializable {
         poleGatunek.clear();
     }
 
+    /**
+     * Pokazuje alert błędu z podanym tytułem i wiadomością.
+     *
+     * @param tytul     Tytuł okna alertu.
+     * @param wiadomosc Treść wiadomości.
+     */
     private void pokazAlert(String tytul, String wiadomosc) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(tytul);
@@ -225,6 +327,12 @@ public class MainController implements Initializable {
         alert.showAndWait();
     }
 
+    /**
+     * Pokazuje alert informacyjny z podanym tytułem i wiadomością.
+     *
+     * @param tytul     Tytuł okna alertu.
+     * @param wiadomosc Treść wiadomości.
+     */
     private void pokazInfo(String tytul, String wiadomosc) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(tytul);
